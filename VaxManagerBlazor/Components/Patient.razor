@@ -1,0 +1,90 @@
+﻿@page "/patients"
+@using System.Text.Json
+@inject HttpClient Http
+<h3>Patient List</h3>
+
+@if (patients == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>City</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var patient in patients)
+            {
+
+
+                <tr>
+                    <td>@patient.Id</td>
+                    <td>@patient.Firstname</td>
+                    <td>@patient.Lastname</td>
+                    <td>@patient.Location</td>
+                    <td>@patient.City</td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+}
+
+@inject HttpClient Http
+@code {
+    private List<PatientData>? patients;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Console.WriteLine("Fetching Patients...");
+
+            // var response = await Http.GetAsync("api/Admin/GetAllPatients/all");
+            // var jsonResponse = await response.Content.ReadAsStringAsync();
+
+            // // Console.WriteLine($"Raw API Response: {jsonResponse}");
+
+            // if (response.IsSuccessStatusCode)
+            // {
+            //     var apiResponse = JsonSerializer.Deserialize<ApiResponse<List<PatientData>>>(jsonResponse,
+            //         new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            //     if (apiResponse != null && apiResponse.IsSuccess)
+            //     {
+            //         patients = apiResponse.Data;
+            //     }
+            //     else
+            //     {
+            //         errorMessage = apiResponse?.Message ?? "API response was unsuccessful.";
+            //     }
+            // }
+            // else
+            // {
+            //     errorMessage = $"API request failed: {response.StatusCode}";
+            // }
+
+            var patient = await Http.GetFromJsonAsync<ApiResponse<List<PatientData>>>("api/Admin/GetAllPatients/all");
+
+            if(patient is not null)
+            {
+                patients = patient.Data;
+             
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Error fetching data: " + ex.Message;
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+    }
+}
+
